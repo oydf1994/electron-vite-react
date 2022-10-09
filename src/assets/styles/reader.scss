@@ -1,0 +1,23 @@
+   body,
+   html {
+     background: rgba(0, 0, 0, 0) !important;
+   }
+
+   .reader {
+     width: 100%;
+     background: rgba(0, 0, 0, 0) !important;
+     height: 100vh;
+     box-sizing: border-box;
+     overflow-x: hidden;
+     p{
+      margin: 0;
+      padding: 0;
+      text-align: left;
+      width: 100%;
+      text-indent: 1em;
+     }
+   }
+
+   .reader::-webkit-scrollbar {
+     width: 0;
+   }

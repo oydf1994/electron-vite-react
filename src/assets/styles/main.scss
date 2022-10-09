@@ -1,0 +1,25 @@
+.search {
+    padding: 15px;
+}
+
+.table {
+    padding: 15px;
+}
+
+.btns {
+    display: flex;
+    gap: 10px;
+}
+
+.Chapter {
+    li {
+        width: 100%;
+        margin-bottom: 15px;
+        list-style: none;
+    }
+
+    li:hover {
+        cursor: pointer;
+        color: #0094ff;
+    }
+}
