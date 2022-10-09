@@ -23,7 +23,7 @@ const Reader = () => {
         behavior: "smooth",
       });
     });
-    setFontStyle(obj);
+    setFontStyle(obj || {});
     setIndex(ChapterIndex);
     getContent(list[ChapterIndex]);
   }, []);
@@ -41,7 +41,6 @@ const Reader = () => {
       })
       .then((res) => {
         let contentArr = res.data.split(/[(\r\n)\r\n]+/);
-        console.log(contentArr);
         setContent(contentArr);
         let reader = document.querySelector(".reader");
         reader.scrollTo({

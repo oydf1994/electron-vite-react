@@ -9,12 +9,14 @@
      height: 100vh;
      box-sizing: border-box;
      overflow-x: hidden;
-     p{
-      margin: 0;
-      padding: 0;
-      text-align: left;
-      width: 100%;
-      text-indent: 1em;
+
+     p {
+       margin: 0;
+       padding: 0;
+       text-align: left;
+       width: 100%;
+       text-indent: 1em;
+       user-select: none
      }
    }
 

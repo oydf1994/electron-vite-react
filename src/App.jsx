@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 import "./assets/styles/main.scss";
-import { Input, Table, Button, Drawer, message, Form, Modal } from "antd";
+import {
+  Input,
+  Table,
+  Button,
+  Drawer,
+  message,
+  Form,
+  Modal,
+  Radio,
+} from "antd";
 import http from "./assets/utils/http.js";
 import newWindow from "./samples/newWindow";
 import { SettingOutlined } from "@ant-design/icons";
 var evtSource = null;
 let list = [];
-// new EventSource("sse.php");
 const App = () => {
   const { Search } = Input;
   const [loading, setLoading] = useState(false);
@@ -16,10 +24,15 @@ const App = () => {
   const [item, setItem] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formInitialValues, setFormInitialValues] = useState({});
+  const [mode, setMode] = useState("1");
+  const [bookshelf, setBookshelf] = useState([]);
   const [form] = Form.useForm();
+
   let lastIndex = -1;
   useEffect(() => {
     let obj = localStorage.getItem("form");
+    let bookshelfData = localStorage.getItem("bookshelf");
+    bookshelfData && setBookshelf(JSON.parse(bookshelfData));
     setFormInitialValues(JSON.parse(obj));
   }, []);
   const columns = [
@@ -27,20 +40,24 @@ const App = () => {
       title: "名称",
       dataIndex: "name",
       width: "100px",
+      ellipsis: true,
     },
     {
       title: "作者",
       dataIndex: "author",
       width: "100px",
+      ellipsis: true,
     },
     {
       title: "来源",
       dataIndex: "originName",
       width: "100px",
+      ellipsis: true,
     },
     {
       title: "最新章节",
       dataIndex: "latestChapterTitle",
+      ellipsis: true,
     },
     {
       title: (
@@ -53,12 +70,34 @@ const App = () => {
           />
         </>
       ),
+      width: "220px",
       key: "operation",
       dataIndex: "operation",
-      render: (_, record) => {
+      ellipsis: true,
+      render: (_, record, index) => {
         return (
           <div className="btns">
-            <Button type="primary">加入书架</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                if (mode == "1") {
+                  message.success("操作成功");
+                  bookshelf.splice(index, 1);
+                } else {
+                  let l = bookshelf.filter((i) => i.bookUrl == record.bookUrl);
+                  if (l.length == 0) {
+                    bookshelf.push(record);
+                    message.success("操作成功");
+                  } else {
+                    message.error("书架已存在该书籍");
+                  }
+                }
+                setBookshelf([...bookshelf]);
+                localStorage.setItem("bookshelf", JSON.stringify(bookshelf));
+              }}
+            >
+              {mode == "1" ? "移除书架" : "加入书架"}
+            </Button>
             <Button onClick={() => getChapterList(record)}>章节目录</Button>
           </div>
         );
@@ -101,6 +140,7 @@ const App = () => {
     if (loading) {
       return false;
     }
+    setMode("2");
     setLoading(true);
     list = [];
     setData([]);
@@ -124,18 +164,6 @@ const App = () => {
       evtSource = null;
       setLoading(false);
     });
-
-    // http
-    //   .get(
-    //     `/searchBookMulti?key=${encodeURI(
-    //       value
-    //     )}&concurrentCount=120&lastIndex=${lastIndex}&page=1`
-    //   )
-    //   .then((res) => {
-    //     lastIndex = res.data.lastIndex;
-    //     setLoading(false);
-    //     setData(res.data.list);
-    //   });
   };
   return (
     <div className="home">
@@ -145,10 +173,20 @@ const App = () => {
         className="search"
       />
       <div className="table">
+        <Radio.Group
+          onChange={(e) => {
+            setMode(e.target.value);
+          }}
+          value={mode}
+          style={{ marginBottom: 10 }}
+        >
+          <Radio.Button value="1">书架</Radio.Button>
+          <Radio.Button value="2">搜索</Radio.Button>
+        </Radio.Group>
         <Table
           columns={columns}
           rowKey={(record) => record.bookUrl}
-          dataSource={data}
+          dataSource={mode == 1 ? bookshelf : data}
           bordered={true}
           pagination={false}
         />
