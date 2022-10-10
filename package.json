@@ -2,7 +2,7 @@
   "name": "free-reader",
   "productName": "Electron",
   "private": true,
-  "version": "0.0.01",
+  "version": "0.0.1",
   "description": "一款可任意阅读网络小说资源的桌面App.",
   "author": "east",
   "license": "MIT",
