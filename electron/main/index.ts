@@ -16,6 +16,8 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 import { app, BrowserWindow, shell, ipcMain, ipcRenderer, globalShortcut } from 'electron'
 import { release } from 'os'
 import { join } from 'path'
+import api from "../api"
+console.log(api)
 app.disableHardwareAcceleration()
 
 let View = null
