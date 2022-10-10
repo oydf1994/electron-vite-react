@@ -134,6 +134,10 @@ const App = () => {
           message.error("获取章节失败");
         }
         setChapterLoading(false);
+      })
+      .catch(() => {
+        message.error("获取章节失败");
+        setChapterLoading(false);
       });
   };
   const handleOk = () => {

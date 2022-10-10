@@ -19,7 +19,8 @@ const Reader = () => {
     ipcRenderer.on("next", () => {
       let reader = document.querySelector(".reader");
       reader.scrollTo({
-        top: reader.scrollTop + obj.height / 3,
+        top:
+          reader.scrollTop + document.querySelector("#root").clientHeight / 2,
         behavior: "smooth",
       });
     });
@@ -30,7 +31,6 @@ const Reader = () => {
   const pageDown = (j) => {
     let page = Number(index) + j;
     setIndex(page);
-    console.log(page);
     getContent(list[page]);
   };
   const getContent = (item) => {
