@@ -153,6 +153,7 @@ const App = () => {
     setIsModalOpen(false);
   };
   const onSearch = (v, refresh) => {
+    if (!v) return false;
     if (refresh) lastIndex = -1;
     value = v;
     if (loading) {

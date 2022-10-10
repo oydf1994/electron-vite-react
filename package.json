@@ -1,9 +1,9 @@
 {
-  "name": "electron-vite-react",
+  "name": "free-reader",
   "productName": "Electron",
   "private": true,
-  "version": "2.0.0",
-  "description": "Vite React Electron boilerplate.",
+  "version": "0.0.01",
+  "description": "一款可任意阅读网络小说资源的桌面App.",
   "author": "east",
   "license": "MIT",
   "main": "dist/electron/main/index.js",
