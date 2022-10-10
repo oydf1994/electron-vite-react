@@ -12,9 +12,11 @@ import {
 } from "antd";
 import http from "./assets/utils/http.js";
 import newWindow from "./samples/newWindow";
-import { SettingOutlined } from "@ant-design/icons";
+import { SettingOutlined, SyncOutlined } from "@ant-design/icons";
 var evtSource = null;
 let list = [];
+let value = "";
+let lastIndex = -1;
 const App = () => {
   const { Search } = Input;
   const [loading, setLoading] = useState(false);
@@ -26,9 +28,11 @@ const App = () => {
   const [formInitialValues, setFormInitialValues] = useState({});
   const [mode, setMode] = useState("1");
   const [bookshelf, setBookshelf] = useState([]);
+  const [chapterLoading, setChapterLoading] = useState(false);
+  const [chapterLoadingIndex, setChapterLoadingIndex] = useState(false);
+
   const [form] = Form.useForm();
 
-  let lastIndex = -1;
   useEffect(() => {
     let obj = localStorage.getItem("form");
     let bookshelfData = localStorage.getItem("bookshelf");
@@ -39,7 +43,7 @@ const App = () => {
     {
       title: "名称",
       dataIndex: "name",
-      width: "100px",
+      width: "200px",
       ellipsis: true,
     },
     {
@@ -48,12 +52,12 @@ const App = () => {
       width: "100px",
       ellipsis: true,
     },
-    {
-      title: "来源",
-      dataIndex: "originName",
-      width: "100px",
-      ellipsis: true,
-    },
+    // {
+    //   title: "来源",
+    //   dataIndex: "originName",
+    //   width: "100px",
+    //   ellipsis: true,
+    // },
     {
       title: "最新章节",
       dataIndex: "latestChapterTitle",
@@ -70,7 +74,7 @@ const App = () => {
           />
         </>
       ),
-      width: "220px",
+      width: "230px",
       key: "operation",
       dataIndex: "operation",
       ellipsis: true,
@@ -98,7 +102,12 @@ const App = () => {
             >
               {mode == "1" ? "移除书架" : "加入书架"}
             </Button>
-            <Button onClick={() => getChapterList(record)}>章节目录</Button>
+            <Button
+              onClick={() => getChapterList(record, index)}
+              loading={chapterLoading && chapterLoadingIndex == index}
+            >
+              章节目录
+            </Button>
           </div>
         );
       },
@@ -107,7 +116,9 @@ const App = () => {
   const onClose = () => {
     setOpen(false);
   };
-  const getChapterList = (item) => {
+  const getChapterList = (item, index) => {
+    setChapterLoadingIndex(index);
+    setChapterLoading(true);
     setItem({ ...item });
     http
       .post("/getChapterList", {
@@ -122,6 +133,7 @@ const App = () => {
         } else {
           message.error("获取章节失败");
         }
+        setChapterLoading(false);
       });
   };
   const handleOk = () => {
@@ -136,7 +148,9 @@ const App = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const onSearch = (value) => {
+  const onSearch = (v, refresh) => {
+    if (refresh) lastIndex = -1;
+    value = v;
     if (loading) {
       return false;
     }
@@ -147,7 +161,7 @@ const App = () => {
     evtSource = new EventSource(
       `http://42.194.173.140:8080/reader3/searchBookMultiSSE?key=${encodeURI(
         value
-      )}&concurrentCount=120&lastIndex=${lastIndex}&page=1`
+      )}&concurrentCount=36&lastIndex=${lastIndex}&page=1`
     );
     evtSource.addEventListener("message", (e) => {
       let res = JSON.parse(e.data);
@@ -159,7 +173,14 @@ const App = () => {
     });
     evtSource.addEventListener("end", (e) => {
       let res = JSON.parse(e.data);
+      console.log(res);
       lastIndex = res.lastIndex;
+      evtSource.close();
+      evtSource = null;
+      setLoading(false);
+    });
+    evtSource.addEventListener("error", (e) => {
+      message.error("没有更多了!");
       evtSource.close();
       evtSource = null;
       setLoading(false);
@@ -173,16 +194,27 @@ const App = () => {
         className="search"
       />
       <div className="table">
-        <Radio.Group
-          onChange={(e) => {
-            setMode(e.target.value);
-          }}
-          value={mode}
-          style={{ marginBottom: 10 }}
-        >
-          <Radio.Button value="1">书架</Radio.Button>
-          <Radio.Button value="2">搜索</Radio.Button>
-        </Radio.Group>
+        <div>
+          <Radio.Group
+            onChange={(e) => {
+              setMode(e.target.value);
+            }}
+            value={mode}
+            style={{ marginBottom: 10 }}
+          >
+            <Radio.Button value="1">书架</Radio.Button>
+            <Radio.Button value="2">搜索</Radio.Button>
+          </Radio.Group>
+          {loading ? (
+            <SyncOutlined spin className="SyncOutlined" />
+          ) : (
+            <SyncOutlined
+              className="SyncOutlined"
+              onClick={() => onSearch(value, true)}
+            />
+          )}
+        </div>
+
         <Table
           columns={columns}
           rowKey={(record) => record.bookUrl}
